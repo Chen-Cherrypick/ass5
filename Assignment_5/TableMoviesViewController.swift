@@ -53,6 +53,19 @@ class TableMoviesViewController: UIViewController, UITableViewDataSource, UITabl
         
         return cell
     }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let movie = dataMovies.getMovie(by: indexPath.row)
+        let movieId = movie["imdbID"] as! String
+        let movieTitle = movie["Title"] as! String
+        let image = movie["Poster"] as! String
+        let year = movie["Year"] as! String
+        
+        let vc = FullDetailedMovieViewController(id: movieId, title: movieTitle, image: image, year: year)
+
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
     
  
 
