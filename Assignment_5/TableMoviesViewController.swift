@@ -7,17 +7,15 @@
 
 import UIKit
 
-class TableMoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class TableMoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate{
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.rowHeight = 170
     }
     
-    @IBAction func searchbtn(_ sender: UIButton) {
-        tableView.isHidden = !tableView.isHidden
-    }
-    
+
+
     
     @IBOutlet weak var tableView: UITableView! {
         didSet {
@@ -26,40 +24,58 @@ class TableMoviesViewController: UIViewController, UITableViewDataSource, UITabl
         }
     }
     
+    @IBOutlet weak var textField: UITextField! {
+        didSet {
+            textField.delegate = self
+        }
+    }
     
+    var movies : [Movie] = []
     
-    var dataMovies = SearchMovies()
+    var keyWordSearch = ""
+    
+    var dataMovies = MoviesAPI()
+    
+    func textFieldDidChangeSelecotion(_ textField: UITextField) {
+        keyWordSearch = textField.text ?? ""
+        if keyWordSearch.count >= 3 {
+            dataMovies.searchMovies(with: keyWordSearch) { movies in
+                self.movies = movies
+                self.tableView.reloadData()
+            }
+        } else {
+            self.movies.removeAll()
+            self.tableView.reloadData()
+        }
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataMovies.dictionaryMovies.count
+        return movies.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let movie = dataMovies.getMovie(by: indexPath.row)
+        let movie = movies[indexPath.row]
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell",
                                                  for: indexPath)
         if let customCell = cell as? MovieTableViewCell {
-            customCell.name.text = movie["Title"] as? String
-            customCell.year.text = movie["Year"] as? String
-            if let stringUrlImage = movie["Poster"] as? String {
-                customCell.imageURL = URL(string: stringUrlImage)
-            }
-            
+            customCell.name.text = movie.getMovieName()
+            customCell.year.text = movie.getMovieYear()
+            customCell.imageURL = URL(string: movie.getMovieImage())
         }
         
- 
+        
         
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let movie = dataMovies.getMovie(by: indexPath.row)
-        let movieId = movie["imdbID"] as! String
-        let movieTitle = movie["Title"] as! String
-        let image = movie["Poster"] as! String
-        let year = movie["Year"] as! String
+        let movie = movies[indexPath.row]
+        let movieId = movie.getMovieId()
+        let movieTitle = movie.getMovieName()
+        let image = movie.getMovieImage()
+        let year = movie.getMovieYear()
         
         let vc = FullDetailedMovieViewController(id: movieId, title: movieTitle, image: image, year: year)
 
