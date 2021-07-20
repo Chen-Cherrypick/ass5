@@ -16,16 +16,18 @@ class MovieCollectionViewCell: UICollectionViewCell {
         }
     }
     
-
+    
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var imageCell: UIImageView!
     
     @IBOutlet weak var year: UILabel!
+    
+    
     private func fetchImage() {
         if let url = imageURL {
             let urlContents = try? Data(contentsOf: url)
             if let imageData = urlContents {
-                imageCell.contentMode = UIView.ContentMode.scaleAspectFit
+                imageCell.contentMode = UIView.ContentMode.scaleToFill
                 imageCell.image = UIImage(data: imageData)
             }
         }

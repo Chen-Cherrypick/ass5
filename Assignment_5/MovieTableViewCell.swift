@@ -15,8 +15,8 @@ class MovieTableViewCell: UITableViewCell {
             fetchImage()
         }
     }
-
-
+    
+    
     @IBOutlet weak var movieImage: UIImageView!
     
     @IBOutlet weak var year: UILabel!
@@ -25,7 +25,7 @@ class MovieTableViewCell: UITableViewCell {
         if let url = imageURL {
             let urlContents = try? Data(contentsOf: url)
             if let imageData = urlContents {
-                movieImage.contentMode = UIView.ContentMode.scaleAspectFit
+                movieImage.contentMode = UIView.ContentMode.scaleToFill
                 movieImage.image = UIImage(data: imageData)
             }
         }

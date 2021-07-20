@@ -11,14 +11,17 @@ class Movie {
     
     private let name : String 
     private let year : String
-    private let image : String
+    private var image  = "https://mysteriouswritings.com/wp-content/uploads/2017/02/movie.jpg"
     private let id : String
+    
     
     init(name: String, year: String, image: String, id: String) {
         self.name = name
         self.year = year
-        self.image = image
         self.id = id
+        if image != "N/A" {
+            self.image = image
+        }
     }
     
     func getMovieName() -> String {
@@ -36,5 +39,9 @@ class Movie {
     func getMovieId() -> String {
         return id
     }
+    
+    
+    
+    
     
 }

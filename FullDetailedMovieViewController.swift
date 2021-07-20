@@ -14,12 +14,16 @@ class FullDetailedMovieViewController: UIViewController {
     private var imageUrl : URL?
     private var movieTitle : String?
     
-    private var movieDetails = [String: Any]()
+    private var movieDetails = MovieDetails()
+    
+    private var movieAPI = MoviesAPI()
+    
+    private let defalutImage = "https://mysteriouswritings.com/wp-content/uploads/2017/02/movie.jpg"
     
     private let titleLable: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.textColor = #colorLiteral(red: 0.1019607857, green: 0.2784313858, blue: 0.400000006, alpha: 1)
+        label.textColor = Colors.darkBlue
         label.numberOfLines = 0
         label.font = label.font.withSize(32)
         return label
@@ -27,45 +31,42 @@ class FullDetailedMovieViewController: UIViewController {
     
     private let yearLabel: UILabel = {
         let label = UILabel()
-//        label.numberOfLines = 0
-        label.textColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        label.textColor = Colors.lightBlue
         return label
     }()
     
     private let genreLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        label.textColor = Colors.lightBlue
         return label
     }()
     
     private let directorLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        label.textColor = Colors.lightBlue
         return label
     }()
     
     private let plotLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        label.textColor = Colors.blue
         label.font = label.font.withSize(28)
         return label
     }()
-   
+    
     
     private let ratingLabel: UILabel = {
         let label = UILabel()
-//        label.numberOfLines = 0
-        label.textColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        label.textColor = Colors.lightBlue
         return label
     }()
     
     private let votesLabel: UILabel = {
         let label = UILabel()
-//        label.numberOfLines = 0
-        label.textColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        label.textColor = Colors.lightBlue
         return label
     }()
     
@@ -81,6 +82,10 @@ class FullDetailedMovieViewController: UIViewController {
     let verticalStackView = UIStackView()
     
     
+    lazy var spinner = showLoader(view: view)
+    
+    
+    
     
     convenience init(id: String, title: String, image: String, year: String) {
         self.init()
@@ -88,8 +93,12 @@ class FullDetailedMovieViewController: UIViewController {
         movieTitle = title
         imageUrl = URL(string: image)
         movieYear = year
-        let fullDescription = FullDescriptionMovie()
-        movieDetails = fullDescription.dictionary
+        spinner = showLoader(view: view)
+        movieAPI.searchMovieById(movieId: movieId!) { movie in
+            self.spinner.dismissLoader()
+            self.movieDetails = movie
+            self.updateViewAfterAPICall()
+        }
     }
     
     
@@ -109,28 +118,28 @@ class FullDetailedMovieViewController: UIViewController {
         self.view.addSubview(yearLabel)
         
         setupTitleLabel()
-
-        image.contentMode = UIView.ContentMode.scaleAspectFit
+        
+        image.contentMode = UIView.ContentMode.scaleToFill
         if let data = fetchImage() {
             image.image = UIImage(data: data)
         }
         setupImage()
+    }
+    
+    private func updateViewAfterAPICall() {
+        yearLabel.text = movieYear
+        ratingLabel.text = "⭐️" + movieDetails.getRating()
+        votesLabel.text = movieDetails.getVotes() + " votes"
         
-        yearLabel.text = movieDetails["Year"] as? String
-        ratingLabel.text = "⭐️" + (movieDetails["imdbRating"] as? String)!
-        votesLabel.text = (movieDetails["imdbVotes"] as? String)! + " votes"
-
         setupHorizonalStackView()
         
-        genreLabel.text = "Genre: " + (movieDetails["Genre"] as? String)!
-        directorLabel.text = "Directors: " + (movieDetails["Director"] as? String)!
+        genreLabel.text = "Genre: " + movieDetails.getGenre()
+        directorLabel.text = "Directors: " + movieDetails.getDirector()
         
         setupVerticalStackView()
         
-        plotLabel.text = "Plot: " + (movieDetails["Plot"] as? String)!
+        plotLabel.text = "Plot: " + movieDetails.getPlot()
         setupPlotLabel()
-
-        
     }
     
     private func setupTitleLabel() {
@@ -153,7 +162,7 @@ class FullDetailedMovieViewController: UIViewController {
             image.widthAnchor.constraint(equalToConstant: 100)
         ]
         view.addConstraints(constraints)
-     
+        
     }
     
     
@@ -172,16 +181,11 @@ class FullDetailedMovieViewController: UIViewController {
         horizonalStackView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(horizonalStackView)
-//        horizonalStackView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-//        horizonalStackView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
-        
-//        view.addConstraint(horizonalStackView.trailingAnchor.constraint(equalTo: image.leadingAnchor, constant: -15.0))
-//        view.addConstraint(horizonalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15.0))
         view.addConstraint(horizonalStackView.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: -4))
         
     }
     
- 
+    
     
     private func setupVerticalStackView() {
         genreLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -197,22 +201,23 @@ class FullDetailedMovieViewController: UIViewController {
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(verticalStackView)
-
+        let constraints : [NSLayoutConstraint] = [
+            verticalStackView.trailingAnchor.constraint(equalTo: image.leadingAnchor, constant: -5.0),
+            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 5.0),
+            verticalStackView.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: 15),
+            verticalStackView.heightAnchor.constraint(equalToConstant: 100)
+        ]
         
-        view.addConstraint(verticalStackView.trailingAnchor.constraint(equalTo: image.leadingAnchor, constant: 5.0))
-        view.addConstraint(verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 5.0))
-        view.addConstraint(verticalStackView.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: 15))
-//        view.addConstraint(verticalStackView.heightAnchor.constraint(equalToConstant: 80))
+        view.addConstraints(constraints)
     }
     
     private func setupPlotLabel() {
         plotLabel.translatesAutoresizingMaskIntoConstraints = false
         let constraints : [NSLayoutConstraint] = [
-            plotLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 15.0),
-//            plotLabel.topAnchor.constraint(greaterThanOrEqualTo: verticalStackView.bottomAnchor, constant: 10),
-            plotLabel.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 5),
+            plotLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10.0),
+            plotLabel.topAnchor.constraint(lessThanOrEqualTo: verticalStackView.bottomAnchor, constant: 15),
+            plotLabel.bottomAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             plotLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 5.0),
-            plotLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: 10),
         ]
         view.addConstraints(constraints)
     }
@@ -227,6 +232,28 @@ class FullDetailedMovieViewController: UIViewController {
         
     }
     
+    func showLoader(view: UIView) -> UIActivityIndicatorView {
+        let spinner = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height:40))
+        spinner.layer.cornerRadius = 3.0
+        spinner.clipsToBounds = true
+        spinner.hidesWhenStopped = true
+        spinner.style = UIActivityIndicatorView.Style.medium;
+        spinner.center = view.center
+        view.addSubview(spinner)
+        spinner.startAnimating()
+        
+        return spinner
+    }
     
-    
+    class Colors {
+        static let lightBlue = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        static let blue = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        static let darkBlue = #colorLiteral(red: 0.1019607857, green: 0.2784313858, blue: 0.400000006, alpha: 1)
+    }
+}
+
+extension UIActivityIndicatorView {
+    func dismissLoader() {
+        self.stopAnimating()
+    }
 }

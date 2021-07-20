@@ -10,7 +10,7 @@ import Alamofire
 
 class MoviesAPI {
     
-        
+    
     let headers : HTTPHeaders = [
         "x-rapidapi-key": "f80ac4d453msh0bf3e3080de58b9p192bcfjsn86ef8518a220",
         "x-rapidapi-host": "movie-database-imdb-alternative.p.rapidapi.com"
@@ -39,6 +39,22 @@ class MoviesAPI {
             movies.append(movie)
         }
         return movies
+    }
+    
+    
+    func searchMovieById(movieId: String, successCallback: @escaping (MovieDetails) -> Void) {
+        AF.request("https://movie-database-imdb-alternative.p.rapidapi.com/?i=\(movieId)&r=json",
+                   method: .get,
+                   headers: headers).responseJSON { response in
+                    if let json = response.value, let jsonObject = json as? [String: Any] {
+                        successCallback(self.convertJasonToMovieDetails(jsonMovie: jsonObject))
+                    }
+                   }
+        
+    }
+    
+    private func convertJasonToMovieDetails(jsonMovie: [String : Any]) -> MovieDetails {
+        return MovieDetails(name: jsonMovie["Title"] as! String, year: jsonMovie["Year"] as! String, image: jsonMovie["Poster"] as! String, id: jsonMovie["imdbID"] as! String, director: jsonMovie["Director"] as! String, plot: jsonMovie["Plot"] as! String, rating: jsonMovie["imdbRating"] as! String, votes: jsonMovie["imdbVotes"] as! String, genre: jsonMovie["Genre"] as! String)
     }
     
     
