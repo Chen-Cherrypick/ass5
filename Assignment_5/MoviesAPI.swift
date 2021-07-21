@@ -10,7 +10,6 @@ import Alamofire
 
 class MoviesAPI {
     
-    
     let headers : HTTPHeaders = [
         "x-rapidapi-key": "f80ac4d453msh0bf3e3080de58b9p192bcfjsn86ef8518a220",
         "x-rapidapi-host": "movie-database-imdb-alternative.p.rapidapi.com"
@@ -25,11 +24,13 @@ class MoviesAPI {
                         if let jsonData = response.data,
                            let res: SearchResponse = try? JSONDecoder().decode(SearchResponse.self, from: jsonData) {
                             successCallback(res.search)
+                        } else {
+                            successCallback([])
                         }
                        }
         }
     }
-       
+    
     
     func searchMovieById(movieId: String, successCallback: @escaping (MovieDetails) -> Void) {
         AF.request("https://movie-database-imdb-alternative.p.rapidapi.com/?i=\(movieId)&r=json",
@@ -42,7 +43,4 @@ class MoviesAPI {
                    }
         
     }
-    
-
-    
 }
