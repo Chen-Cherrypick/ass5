@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Movie {
+class Movie : Codable {
     
     private let name : String 
     private let year : String
@@ -23,6 +23,13 @@ class Movie {
             self.image = image
         }
     }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id = "imdbID"
+        case name = "Title"
+        case year = "Year"
+        case image = "Poster"
+      }
     
     func getMovieName() -> String {
         return name
@@ -40,8 +47,12 @@ class Movie {
         return id
     }
     
-    
-    
-    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.year = try container.decode(String.self, forKey: .year)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.image = try container.decode(String.self, forKey: .image) != "N/A" ? container.decode(String.self, forKey: .image) : "https://mysteriouswritings.com/wp-content/uploads/2017/02/movie.jpg"
+    }
     
 }
