@@ -44,13 +44,11 @@ class TableMoviesViewController: UIViewController, UITableViewDataSource, UITabl
             dataMovies.searchMovies(with: keyWordSearch) { movies in
                 self.movies = movies
                 self.tableView.reloadData()
-                print("11111")
             }
         } else {
             self.movies.removeAll()
             self.tableView.reloadData()
         }
-        print("222222")
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
