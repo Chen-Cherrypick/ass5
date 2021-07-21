@@ -7,11 +7,13 @@
 
 import UIKit
 
-class TableMoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate{
+class TableMoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.rowHeight = 170
+        tableView.register(UINib(nibName: "TableCell", bundle: nil), forCellReuseIdentifier: "MovieCell")
+
     }
     
     
@@ -78,9 +80,7 @@ class TableMoviesViewController: UIViewController, UITableViewDataSource, UITabl
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    
-    
-    
+
     
     
 }

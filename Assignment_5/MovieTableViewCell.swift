@@ -15,7 +15,7 @@ class MovieTableViewCell: UITableViewCell {
             fetchImage()
         }
     }
-    
+
     
     @IBOutlet weak var movieImage: UIImageView!
     
