@@ -16,7 +16,8 @@ class CollectionMoviesViewController: UIViewController, UICollectionViewDataSour
         super.viewDidLoad()
         
         flowLayout?.itemSize = UICollectionViewFlowLayout.automaticSize
-        flowLayout?.estimatedItemSize = CGSize(width: 200, height: 291)
+        flowLayout?.estimatedItemSize = CGSize(width: 200, height: 350)
+        moviesCollection.register(UINib(nibName: "CollectionCell", bundle: nil), forCellWithReuseIdentifier: "MovieCollectionCell")
     }
     
     private var flowLayout: UICollectionViewFlowLayout? {
@@ -61,7 +62,7 @@ class CollectionMoviesViewController: UIViewController, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionMovieCell", for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionCell", for: indexPath)
         let movie = movies[indexPath.row]
         
         if let customCell = cell as? MovieCollectionViewCell {
